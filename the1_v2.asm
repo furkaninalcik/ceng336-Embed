@@ -1,4 +1,4 @@
-nclude "p18f8722.inc"
+include "p18f8722.inc"
 ; CONFIG1H
   CONFIG  OSC = HSPLL, FCMEN = OFF, IESO = OFF
 ; CONFIG2L
@@ -35,6 +35,7 @@ UDATA_ACS
   t2	res 1	; used in delay
   t3	res 1	; used in delay
   state res 1	; controlled by RB0 button
+  snake_position equ h'0';
 ;*******************************************************************************
 ; Reset Vector
 ;*******************************************************************************
@@ -53,27 +54,50 @@ START
     call INIT	; initialize variables and ports
     call DELAY	; wait a second
 
-Pos1
-    BCF LATA, 2
-    BSF LATA, 0
-    BSF LATA, 1
-    call DELAY	; wait a second
-    
+Move_cw
 
-Pos2
-    BCF LATA, 0
-    BSF LATA, 1
-    BSF LATA, 2
-    call DELAY	; wait a second
+    INCF snake_position, 1
+    BTFSS snake_position, 1
+    GOTO pos1
+    pos1:
+        BCF LATA, 2
+        BSF LATA, 0
+        BSF LATA, 1
+        call DELAY	; wait a second
+
+    BTFSS snake_position, 2
+    GOTO pos2
+    pos2:
+        BCF LATA, 0
+        BSF LATA, 1
+        BSF LATA, 2
+        call DELAY	; wait a second
+    BTFSS snake_position, 3
+    GOTO pos3
+    pos3:
+        BCF LATA, 1
+        BSF LATA, 2
+        BSF LATA, 3
+        call DELAY	; wait a second
+    BTFSS snake_position, 4
+    GOTO pos4
+    pos4:
+        BCF LATA, 2
+        BSF LATA, 3
+        BSF LATB, 0
+        call DELAY	; wait a second
+    BTFSS snake_position, 5
+    GOTO pos5
+    pos5:
+        BCF LATA, 3
+        BSF LATB, 0
+        BSF LATB, 1
+        call DELAY	; wait a second
     
 
 MAIN_LOOP
     
-    CALL Pos1
-
-    call DELAY	; wait a second
-
-	CALL Pos2
+    CALL Move_cw
 
     GOTO MAIN_LOOP  ; loop forever
 
@@ -106,8 +130,8 @@ MOVWF ADCON1
     MOVLW   0xFF
     CLRF    LATB
 
-    MOVWF   LATC
-    MOVWF   LATD
+    ;MOVWF   LATC
+    ;MOVWF   LATD
     MOVWF   LATE
     MOVWF   LATF
     CLRF    LATG
