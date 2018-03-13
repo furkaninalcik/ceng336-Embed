@@ -53,12 +53,24 @@ MAIN_PROG CODE  ; let linker place main program
 START
     call INIT ; initialize variables and ports
     call DELAY  ; wait a second
+    call MAIN_LOOP
 
 Move_cw_2 ; called after initial loop
   CALL DELAY
 
   BSF LATD, 0
   CALL DELAY
+
+
+BUTTON_TASK ; very primitive button task
+      BTFSS PORTB,5
+      goto BUTTON_TASK
+
+      _debounce:
+      BTFSC PORTB,5
+      goto _debounce    ; busy waiting. FIXME !!!
+      ;COMF state, 1
+      return
 
 Move_cw
 
@@ -78,7 +90,7 @@ Move_cw
         BSF LATD, 1
         BSF LATD, 2
         call DELAY  ; wait a second
-    
+
     BTFSS snake_position, 3
     GOTO pos3
     pos3:
@@ -86,7 +98,8 @@ Move_cw
         BSF LATD, 2
         BSF LATD, 3
         call DELAY  ; wait a second
-    
+        CALL BUTTON_TASK
+
     BTFSS snake_position, 4
     GOTO pos4
     pos4:
@@ -94,7 +107,7 @@ Move_cw
         BSF LATD, 3
         BSF LATC, 0
         call DELAY  ; wait a second
-    
+
     BTFSS snake_position, 5
     GOTO pos5
     pos5:
@@ -102,7 +115,7 @@ Move_cw
         BSF LATC, 0
         BSF LATC, 1
         call DELAY  ; wait a second
-    
+
     BTFSS snake_position, 6
     GOTO pos6
     pos6:
@@ -110,7 +123,7 @@ Move_cw
         BSF LATC, 1
         BSF LATC, 2
         call DELAY  ; wait a second
-    
+
     BTFSS snake_position, 7
     GOTO pos7
     pos7:
@@ -118,7 +131,7 @@ Move_cw
         BSF LATC, 2
         BSF LATC, 3
         call DELAY  ; wait a second
-    
+
     BTFSS snake_position, 8
     GOTO pos8
     pos8:
@@ -158,7 +171,7 @@ Move_cw
         BCF LATB, 2
         BSF LATB, 3
         BSF LATA, 0
-        call DELAY  ; wait a second    
+        call DELAY  ; wait a second
 
 
     BTFSS snake_position, h'D'
@@ -167,7 +180,7 @@ Move_cw
         BCF LATB, 3
         BSF LATA, 0
         BSF LATA, 1
-        call DELAY  ; wait a second  
+        call DELAY  ; wait a second
 
 
     BTFSS snake_position, h'E'
@@ -176,7 +189,7 @@ Move_cw
         BCF LATA, 0
         BSF LATA, 1
         BSF LATA, 2
-        call DELAY  ; wait a second 
+        call DELAY  ; wait a second
 
     BTFSS snake_position, h'F'
     GOTO pos15
@@ -186,14 +199,15 @@ Move_cw
         BSF LATA, 3
         call DELAY  ; wait a second
         BCF LATA, 2
+        call DELAY  ; wait a second
         BCF LATA, 3
 
 
 MAIN_LOOP
 
-    BTFSS snake_position, h'F'
-    GOTO not_initial_loop
-    
+    ;BTFSS snake_position, h'F'
+    ;GOTO not_initial_loop
+
     CALL Move_cw
 
     not_initial_loop:
@@ -226,35 +240,42 @@ INIT
 MOVLW 0Fh
 MOVWF ADCON1
 
+    MOVLW   0xF0
+    MOVWF    TRISA
+    MOVWF    TRISB
+    MOVWF    TRISC
+    MOVWF    TRISD
+
     CLRF    state
     MOVLW   0xFF
     CLRF    LATB
 
-    ;MOVWF   LATC
-    ;MOVWF   LATD
-    MOVWF   LATE
-    MOVWF   LATF
-    CLRF    LATG
-    MOVWF   LATH    ; selects display permutation
-    MOVWF   LATJ    ; on/off segment in a display
+    MOVWF   LATC
+    MOVWF   LATD
+    MOVWF   LATA
+    MOVWF   LATB
+    CALL DELAY
+    CALL DELAY
 
-    MOVLW   0xFF
-    MOVWF   TRISB
-    CLRF    TRISA
-    CLRF    TRISB
-    CLRF    TRISC
-    CLRF    TRISD
+    CLRF   LATC
+    CLRF   LATD
+    CLRF   LATA
+    CLRF   LATB
+
+
+
+    ;MOVWF   LATE
+    ;MOVWF   LATF
+    ;CLRF    LATG
+    ;MOVWF   LATH    ; selects display permutation
+    ;MOVWF   LATJ    ; on/off segment in a display
+
+ 
 
     return
 
 
-BUTTON_TASK ; very primitive button task
-    BTFSS PORTB,0
-    return
 
-    _debounce:
-  BTFSC PORTB,0
-  goto _debounce  ; busy waiting. FIXME !!!
 
 
 
