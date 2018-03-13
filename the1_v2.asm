@@ -58,6 +58,8 @@ START
 
 
 BUTTON_TASK_1 ; very primitive button task
+      BTFSC PORTA,4
+      goto _debounce_2
       BTFSS PORTB,5
       goto BUTTON_TASK_1
 
@@ -83,7 +85,7 @@ BUTTON_TASK_2 ; very primitive button task
       BCF LATE, 1
       return
 
-      state_check0: ;when state = 1 
+      state_check0: ;when state = 1
       BSF LATE, 1
       BCF LATE, 0
       return
@@ -98,26 +100,29 @@ Move_ccw
     call DELAY  ; wait a second
 
     BTFSS state,0x00
-    goto pos_0
-  
+    goto pos_11
+
   pos1:
 
     BSF LATA, 3
     BCF LATA, 1
     call DELAY  ; wait a second
-    
+
     BTFSS state,0x00
-    goto pos_1   
-  
+    goto pos_10
+    CALL BUTTON_TASK_2
+    CALL BUTTON_TASK_1
+
   pos2:
 
     BSF LATB, 3
     BCF LATA, 2
     call DELAY  ; wait a second
-    
+
     BTFSS state,0x00
-    goto pos_2
-  
+    goto pos_9
+
+
   pos3:
 
     BSF LATC, 3
@@ -125,7 +130,7 @@ Move_ccw
     call DELAY  ; wait a second
 
     BTFSS state,0x00
-    goto pos_3
+    goto pos_8
 
   pos4:
 
@@ -134,16 +139,19 @@ Move_ccw
     call DELAY  ; wait a second
 
     BTFSS state,0x00
-    goto pos_4
+    goto pos_7
+    CALL BUTTON_TASK_2
+    CALL BUTTON_TASK_1
 
   pos5:
-    
+
     BSF LATD, 2
     BCF LATC, 3
     call DELAY  ; wait a second
 
     BTFSS state,0x00
-    goto pos_5
+    goto pos_6
+
 
   pos6:
 
@@ -153,7 +161,7 @@ Move_ccw
     call DELAY  ; wait a second
 
     BTFSS state,0x00
-    goto pos_6
+    goto pos_5
 
   pos7:
 
@@ -163,37 +171,42 @@ Move_ccw
     call DELAY  ; wait a second
 
     BTFSS state,0x00
-    goto pos_7
+    goto pos_4
+    CALL BUTTON_TASK_2
+    CALL BUTTON_TASK_1
 
   pos8:
 
     BSF LATC, 0
     BCF LATD, 1
     call DELAY  ; wait a second
- 
+
 
     BTFSS state,0x00
-    goto pos_8
+    goto pos_3
+
 
   pos9:
 
     BSF LATB, 0
     BCF LATD, 0
     call DELAY  ; wait a second
- 
+
 
     BTFSS state,0x00
-    goto pos_9
+    goto pos_2
 
   pos10:
- 
+
     BSF LATA, 0
     BCF LATC, 0
     call DELAY  ; wait a second
 
     BTFSS state,0x00
-    goto pos_10
-
+    goto pos_1
+    CALL BUTTON_TASK_2
+    CALL BUTTON_TASK_1
+    
   pos11:
 
     BSF LATA, 1
@@ -202,7 +215,8 @@ Move_ccw
     call DELAY  ; wait a second
 
     BTFSS state,0x00
-    goto pos_11
+    goto pos_0
+
 
 
     CALL Move_ccw
@@ -212,22 +226,23 @@ Move_cw
 
   pos_0:
 
+    BCF LATA, 1
     BSF LATA, 0
     BSF LATB, 0
     call DELAY  ; wait a second
 
     BTFSC state,0xFF
-    goto pos0
+    goto pos11
 
   pos_1:
- 
+
 
     BCF LATA, 0
     BSF LATC, 0
     call DELAY  ; wait a second
 
     BTFSC state,0xFF
-    goto pos1
+    goto pos10
 
   pos_2:
 
@@ -235,10 +250,11 @@ Move_cw
     BCF LATB, 0
     BSF LATD, 0
     call DELAY  ; wait a second
-    ;CALL BUTTON_TASK_1
 
     BTFSC state,0xFF
-    goto pos2
+    goto pos9
+    CALL BUTTON_TASK_2
+    CALL BUTTON_TASK_1
 
   pos_3:
 
@@ -247,7 +263,7 @@ Move_cw
     call DELAY  ; wait a second
 
     BTFSC state,0xFF
-    goto pos3
+    goto pos8
 
   pos_4:
 
@@ -258,7 +274,7 @@ Move_cw
 
 
     BTFSC state,0xFF
-    goto pos4
+    goto pos7
 
   pos_5:
 
@@ -268,7 +284,9 @@ Move_cw
     call DELAY  ; wait a second
 
     BTFSC state,0xFF
-    goto pos5
+    goto pos6
+    CALL BUTTON_TASK_2
+    CALL BUTTON_TASK_1
 
   pos_6:
 
@@ -278,7 +296,8 @@ Move_cw
     call DELAY  ; wait a second
 
     BTFSC state,0xFF
-    goto pos6
+    goto pos5
+
 
   pos_7:
 
@@ -288,7 +307,7 @@ Move_cw
     call DELAY  ; wait a second
 
     BTFSC state,0xFF
-    goto pos7
+    goto pos4
 
   pos_8:
 
@@ -298,7 +317,9 @@ Move_cw
     call DELAY  ; wait a second
 
     BTFSC state,0xFF
-    goto pos8
+    goto pos3
+    CALL BUTTON_TASK_2
+    CALL BUTTON_TASK_1
 
   pos_9:
 
@@ -308,7 +329,7 @@ Move_cw
     call DELAY  ; wait a second
 
     BTFSC state,0xFF
-    goto pos9
+    goto pos2
 
   pos_10:
 
@@ -318,14 +339,15 @@ Move_cw
     call DELAY  ; wait a second
 
     BTFSC state,0xFF
-    goto pos10
+    goto pos1
 
   pos_11:
 
-    BCF LATA, 2
-    BSF LATA, 0
     call DELAY  ; wait a second
-    BCF LATA, 1
+    CALL BUTTON_TASK_2
+    CALL BUTTON_TASK_1
+    BSF LATA, 0
+    BCF LATA, 2
 
 
   CALL Move_cw
@@ -345,7 +367,7 @@ MAIN_LOOP
 DELAY ; Time Delay Routine with 3 nested loops
 
 
-    MOVLW 4  ; Copy desired value to W
+    MOVLW 18  ; Copy desired value to W
     MOVWF t3  ; Copy W into t3
     _loop3:
         MOVLW 0xA0  ; Copy desired value to W
