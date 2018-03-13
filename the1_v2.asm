@@ -35,7 +35,7 @@ UDATA_ACS
   t2  res 1 ; used in delay
   t3  res 1 ; used in delay
   state res 1 ; controlled by RB0 button
-  snake_position equ h'0';
+  snake_position res b'0';
 ;*******************************************************************************
 ; Reset Vector
 ;*******************************************************************************
@@ -55,152 +55,174 @@ START
     call DELAY  ; wait a second
     call MAIN_LOOP
 
-Move_cw_2 ; called after initial loop
-  CALL DELAY
-
-  BSF LATD, 0
-  CALL DELAY
 
 
-BUTTON_TASK ; very primitive button task
+BUTTON_TASK_1 ; very primitive button task
       BTFSS PORTB,5
-      goto BUTTON_TASK
+      goto BUTTON_TASK_1
 
       _debounce:
       BTFSC PORTB,5
       goto _debounce    ; busy waiting. FIXME !!!
-      ;COMF state, 1
+
       return
+
+BUTTON_TASK_2 ; very primitive button task
+      BTFSS PORTA,4
+      return
+
+      _debounce_2:
+      BTFSC PORTA,4
+      goto _debounce_2    ; busy waiting. FIXME !!!
+      COMF state, 1
+      BTFSS state,0xFF
+      goto state_check0
+
+      state_check1: ;when state = 0
+      BSF LATE, 0
+      BCF LATE, 1
+      return
+
+      state_check0: ;when state = 1 
+      BSF LATE, 1
+      BCF LATE, 0
+      return
+
+Move_ccw
+
+    pos0:
+
+    BCF LATA, 0
+    BSF LATA, 1
+    BSF LATA, 2
+    call DELAY  ; wait a second
+
+    pos1:
+
+    BSF LATA, 3
+    BCF LATA, 1
+    call DELAY  ; wait a second
+   
+    pos2:
+
+    BSF LATB, 3
+    BCF LATA, 2
+    call DELAY  ; wait a second
+
+    pos3:
+
+    BSF LATC, 3
+    BCF LATA, 3
+    call DELAY  ; wait a second
+
+    BSF LATD, 3
+    BCF LATB, 3
+    call DELAY  ; wait a second
+
+    BSF LATD, 2
+    BCF LATC, 3
+    call DELAY  ; wait a second
+
+
+    BSF LATD, 1
+    BCF LATD, 3
+    call DELAY  ; wait a second
+
+
+    BSF LATD, 0
+    BCF LATD, 2
+    call DELAY  ; wait a second
+
+
+    BSF LATC, 0
+    BCF LATD, 1
+    call DELAY  ; wait a second
+
+    BSF LATB, 0
+    BCF LATD, 0
+    call DELAY  ; wait a second
+
+ 
+    BSF LATA, 0
+    BCF LATC, 0
+    call DELAY  ; wait a second
+    
+
+    BSF LATA, 1
+    BSF LATA, 0
+    BCF LATB, 0
+    call DELAY  ; wait a second
+
+
+   ;----------------------------------------- 
+      
+
+    return
+
 
 Move_cw
 
-    INCF snake_position, 1
-    BTFSS snake_position, 1
-    GOTO pos1
-    pos1:
-        BCF LATD, 2
-        BSF LATD, 0
-        BSF LATD, 1
-        call DELAY  ; wait a second
+    ;INCF snake_position, 1
 
-    BTFSS snake_position, 2
-    GOTO pos2
-    pos2:
-        BCF LATD, 0
-        BSF LATD, 1
-        BSF LATD, 2
-        call DELAY  ; wait a second
+    BSF LATA, 0
+    BSF LATB, 0
+    call DELAY  ; wait a second
 
-    BTFSS snake_position, 3
-    GOTO pos3
-    pos3:
-        BCF LATD, 1
-        BSF LATD, 2
-        BSF LATD, 3
-        call DELAY  ; wait a second
-        CALL BUTTON_TASK
+ 
+    BCF LATA, 0
+    BSF LATC, 0
+    call DELAY  ; wait a second
 
-    BTFSS snake_position, 4
-    GOTO pos4
-    pos4:
-        BCF LATD, 2
-        BSF LATD, 3
-        BSF LATC, 0
-        call DELAY  ; wait a second
+    BCF LATB, 0
+    BSF LATD, 0
+    call DELAY  ; wait a second
+    ;CALL BUTTON_TASK_1
 
-    BTFSS snake_position, 5
-    GOTO pos5
-    pos5:
-        BCF LATD, 3
-        BSF LATC, 0
-        BSF LATC, 1
-        call DELAY  ; wait a second
+    BCF LATC, 0
+    BSF LATD, 1
+    call DELAY  ; wait a second
 
-    BTFSS snake_position, 6
-    GOTO pos6
-    pos6:
-        BCF LATC, 0
-        BSF LATC, 1
-        BSF LATC, 2
-        call DELAY  ; wait a second
-
-    BTFSS snake_position, 7
-    GOTO pos7
-    pos7:
-        BCF LATC, 1
-        BSF LATC, 2
-        BSF LATC, 3
-        call DELAY  ; wait a second
-
-    BTFSS snake_position, 8
-    GOTO pos8
-    pos8:
-        BCF LATC, 2
-        BSF LATC, 3
-        BSF LATB, 0
-        call DELAY  ; wait a second
-
-    BTFSS snake_position, 9
-    GOTO pos9
-    pos9:
-        BCF LATC, 3
-        BSF LATB, 0
-        BSF LATB, 1
-        call DELAY  ; wait a second
-
-    BTFSS snake_position, A
-    GOTO pos10
-    pos10:
-        BCF LATB, 0
-        BSF LATB, 1
-        BSF LATB, 2
-        call DELAY  ; wait a second
-
-    BTFSS snake_position, h'B'
-    GOTO pos11
-    pos11:
-        BCF LATB, 1
-        BSF LATB, 2
-        BSF LATB, 3
-        call DELAY  ; wait a second
+    BCF LATD, 0
+    BSF LATD, 2
+    call DELAY  ; wait a second
 
 
-    BTFSS snake_position, h'C'
-    GOTO pos12
-    pos12:
-        BCF LATB, 2
-        BSF LATB, 3
-        BSF LATA, 0
-        call DELAY  ; wait a second
+    BTFSC state,0xFF
+    goto pos3
 
 
-    BTFSS snake_position, h'D'
-    GOTO pos13
-    pos13:
-        BCF LATB, 3
-        BSF LATA, 0
-        BSF LATA, 1
-        call DELAY  ; wait a second
+    BCF LATD, 1
+    BSF LATD, 3
+    call DELAY  ; wait a second
+
+    BCF LATD, 2
+    BSF LATC, 3
+    call DELAY  ; wait a second
+
+    BCF LATD, 3
+    BSF LATB, 3
+    call DELAY  ; wait a second
+
+    BCF LATC, 3
+    BSF LATA, 3
+    call DELAY  ; wait a second
+
+    BCF LATB, 3
+    BSF LATA, 2
+    call DELAY  ; wait a second
+
+    BCF LATA, 3
+    BSF LATA, 1
+    call DELAY  ; wait a second
 
 
-    BTFSS snake_position, h'E'
-    GOTO pos14
-    pos14:
-        BCF LATA, 0
-        BSF LATA, 1
-        BSF LATA, 2
-        call DELAY  ; wait a second
+    BCF LATA, 2
+    BSF LATA, 0
+    call DELAY  ; wait a second
+    BCF LATA, 1
 
-    BTFSS snake_position, h'F'
-    GOTO pos15
-    pos15:
-        BCF LATA, 1
-        BSF LATA, 2
-        BSF LATA, 3
-        call DELAY  ; wait a second
-        BCF LATA, 2
-        call DELAY  ; wait a second
-        BCF LATA, 3
+
+
 
 
 MAIN_LOOP
@@ -210,29 +232,30 @@ MAIN_LOOP
 
     CALL Move_cw
 
-    not_initial_loop:
-        CALL Move_cw_2
-
     GOTO MAIN_LOOP  ; loop forever
 
 
 DELAY ; Time Delay Routine with 3 nested loops
-    MOVLW 18  ; Copy desired value to W
+
+
+    MOVLW 14  ; Copy desired value to W
     MOVWF t3  ; Copy W into t3
     _loop3:
-  MOVLW 0xA0  ; Copy desired value to W
-  MOVWF t2    ; Copy W into t2
-  _loop2:
-      MOVLW 0x9F  ; Copy desired value to W
-      MOVWF t1  ; Copy W into t1
-      _loop1:
-    decfsz t1,F ; Decrement t1. If 0 Skip next instruction
-    GOTO _loop1 ; ELSE Keep counting down
-    decfsz t2,F ; Decrement t2. If 0 Skip next instruction
-    GOTO _loop2 ; ELSE Keep counting down
-    decfsz t3,F ; Decrement t3. If 0 Skip next instruction
-    GOTO _loop3 ; ELSE Keep counting down
-    return
+        MOVLW 0xA0  ; Copy desired value to W
+         MOVWF t2    ; Copy W into t2
+        _loop2:
+            MOVLW 0x9F  ; Copy desired value to W
+            MOVWF t1  ; Copy W into t1
+            _loop1:
+                decfsz t1,F ; Decrement t1. If 0 Skip next instruction
+                GOTO _loop1 ; ELSE Keep counting down
+                decfsz t2,F ; Decrement t2. If 0 Skip next instruction
+                GOTO _loop2 ; ELSE Keep counting down
+                decfsz t3,F ; Decrement t3. If 0 Skip next instruction
+                GOTO _loop3 ; ELSE Keep counting down
+
+                CALL BUTTON_TASK_2 ; may change direction after delay
+                return
 
 
 INIT
@@ -245,6 +268,7 @@ MOVWF ADCON1
     MOVWF    TRISB
     MOVWF    TRISC
     MOVWF    TRISD
+    MOVWF    TRISE
 
     CLRF    state
     MOVLW   0xFF
@@ -270,7 +294,8 @@ MOVWF ADCON1
     ;MOVWF   LATH    ; selects display permutation
     ;MOVWF   LATJ    ; on/off segment in a display
 
- 
+    BSF LATE, 0
+    BCF LATE, 1
 
     return
 
