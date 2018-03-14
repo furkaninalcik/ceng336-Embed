@@ -97,7 +97,7 @@ Move_ccw
     BCF LATA, 0
     BSF LATA, 1
     BSF LATA, 2
-    call DELAY  ; wait a second
+    call DELAY2  ; wait a second
 
     BTFSS state,0x00
     goto pos_11
@@ -106,18 +106,21 @@ Move_ccw
 
     BSF LATA, 3
     BCF LATA, 1
-    call DELAY  ; wait a second
+    call DELAY2  ; wait a second
 
     BTFSS state,0x00
     goto pos_10
     CALL BUTTON_TASK_2
     CALL BUTTON_TASK_1
 
+    BTFSS state,0x00
+    goto pos_10
+
   pos2:
 
     BSF LATB, 3
     BCF LATA, 2
-    call DELAY  ; wait a second
+    call DELAY2  ; wait a second
 
     BTFSS state,0x00
     goto pos_9
@@ -127,7 +130,7 @@ Move_ccw
 
     BSF LATC, 3
     BCF LATA, 3
-    call DELAY  ; wait a second
+    call DELAY2  ; wait a second
 
     BTFSS state,0x00
     goto pos_8
@@ -136,18 +139,21 @@ Move_ccw
 
     BSF LATD, 3
     BCF LATB, 3
-    call DELAY  ; wait a second
+    call DELAY2  ; wait a second
 
     BTFSS state,0x00
     goto pos_7
     CALL BUTTON_TASK_2
     CALL BUTTON_TASK_1
 
+    BTFSS state,0x00
+    goto pos_7
+
   pos5:
 
     BSF LATD, 2
     BCF LATC, 3
-    call DELAY  ; wait a second
+    call DELAY2  ; wait a second
 
     BTFSS state,0x00
     goto pos_6
@@ -158,7 +164,7 @@ Move_ccw
 
     BSF LATD, 1
     BCF LATD, 3
-    call DELAY  ; wait a second
+    call DELAY2  ; wait a second
 
     BTFSS state,0x00
     goto pos_5
@@ -168,18 +174,21 @@ Move_ccw
 
     BSF LATD, 0
     BCF LATD, 2
-    call DELAY  ; wait a second
+    call DELAY2  ; wait a second
 
     BTFSS state,0x00
     goto pos_4
     CALL BUTTON_TASK_2
     CALL BUTTON_TASK_1
 
+    BTFSS state,0x00
+    goto pos_4
+
   pos8:
 
     BSF LATC, 0
     BCF LATD, 1
-    call DELAY  ; wait a second
+    call DELAY2  ; wait a second
 
 
     BTFSS state,0x00
@@ -190,7 +199,7 @@ Move_ccw
 
     BSF LATB, 0
     BCF LATD, 0
-    call DELAY  ; wait a second
+    call DELAY2  ; wait a second
 
 
     BTFSS state,0x00
@@ -200,19 +209,22 @@ Move_ccw
 
     BSF LATA, 0
     BCF LATC, 0
-    call DELAY  ; wait a second
+    call DELAY2  ; wait a second
 
     BTFSS state,0x00
     goto pos_1
     CALL BUTTON_TASK_2
     CALL BUTTON_TASK_1
-    
+
+    BTFSS state,0x00
+    goto pos_1
+
   pos11:
 
     BSF LATA, 1
     BSF LATA, 0
     BCF LATB, 0
-    call DELAY  ; wait a second
+    call DELAY2  ; wait a second
 
     BTFSS state,0x00
     goto pos_0
@@ -256,6 +268,9 @@ Move_cw
     CALL BUTTON_TASK_2
     CALL BUTTON_TASK_1
 
+    BTFSC state,0xFF
+    goto pos9
+
   pos_3:
 
     BCF LATC, 0
@@ -287,6 +302,9 @@ Move_cw
     goto pos6
     CALL BUTTON_TASK_2
     CALL BUTTON_TASK_1
+
+    BTFSC state,0xFF
+    goto pos6
 
   pos_6:
 
@@ -320,6 +338,9 @@ Move_cw
     goto pos3
     CALL BUTTON_TASK_2
     CALL BUTTON_TASK_1
+
+    BTFSC state,0xFF
+    goto pos3
 
   pos_9:
 
@@ -367,10 +388,10 @@ MAIN_LOOP
 DELAY ; Time Delay Routine with 3 nested loops
 
 
-    MOVLW 18  ; Copy desired value to W
+    MOVLW 0x40  ; Copy desired value to W
     MOVWF t3  ; Copy W into t3
     _loop3:
-        MOVLW 0xA0  ; Copy desired value to W
+        MOVLW 0xF2  ; Copy desired value to W
          MOVWF t2    ; Copy W into t2
         _loop2:
             MOVLW 0x9F  ; Copy desired value to W
@@ -386,6 +407,48 @@ DELAY ; Time Delay Routine with 3 nested loops
                 CALL BUTTON_TASK_2 ; may change direction after delay
                 return
 
+DELAY2 ; Time Delay Routine with 3 nested loops
+
+
+    MOVLW 0x33  ; Copy desired value to W
+    MOVWF t3  ; Copy W into t3
+    _loop3_2:
+        MOVLW 0xA0  ; Copy desired value to W
+         MOVWF t2    ; Copy W into t2
+        _loop2_2:
+            MOVLW 0x9F  ; Copy desired value to W
+            MOVWF t1  ; Copy W into t1
+            _loop1_2:
+                decfsz t1,F ; Decrement t1. If 0 Skip next instruction
+                GOTO _loop1_2 ; ELSE Keep counting down
+                decfsz t2,F ; Decrement t2. If 0 Skip next instruction
+                GOTO _loop2_2 ; ELSE Keep counting down
+                decfsz t3,F ; Decrement t3. If 0 Skip next instruction
+                GOTO _loop3_2 ; ELSE Keep counting down
+
+                CALL BUTTON_TASK_2 ; may change direction after delay
+                return
+DELAY3 ; Time Delay Routine with 3 nested loops
+
+
+    MOVLW 0x86  ; Copy desired value to W
+    MOVWF t3  ; Copy W into t3
+    _loop3_3:
+        MOVLW 0xA0  ; Copy desired value to W
+         MOVWF t2    ; Copy W into t2
+        _loop2_3:
+            MOVLW 0x9F  ; Copy desired value to W
+            MOVWF t1  ; Copy W into t1
+            _loop1_3:
+                decfsz t1,F ; Decrement t1. If 0 Skip next instruction
+                GOTO _loop1_3 ; ELSE Keep counting down
+                decfsz t2,F ; Decrement t2. If 0 Skip next instruction
+                GOTO _loop2_3 ; ELSE Keep counting down
+                decfsz t3,F ; Decrement t3. If 0 Skip next instruction
+                GOTO _loop3_3 ; ELSE Keep counting down
+
+                CALL BUTTON_TASK_2 ; may change direction after delay
+                return
 
 INIT
 
@@ -403,12 +466,17 @@ MOVWF ADCON1
     MOVLW   0xFF
     CLRF    LATB
 
+
+    ;CALL DELAY
+    ;CALL DELAY2
+    ;CALL DELAY3
+
     MOVWF   LATC
     MOVWF   LATD
     MOVWF   LATA
     MOVWF   LATB
-    CALL DELAY
-    CALL DELAY
+    CALL DELAY3
+    CALL DELAY3
 
     CLRF   LATC
     CLRF   LATD
